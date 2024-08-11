@@ -22,12 +22,14 @@ public class Blackjack {
         dealerHand.add(shoe.draw(true));
     }
 
-    private static void printState(ArrayList<Hand> playerHands, int selected, Hand dealerHand) {
+    private static void printState(ArrayList<Hand> playerHands, int selected, Hand dealerHand, Shoe shoe) {
         // set cursor home (0, 0) and erase everything below
         System.out.print("\u001b[H\u001b[2J");
         System.out.flush();
 
-        System.out.printf("%s\n\n", dealerHand);
+        System.out.printf("%s\t%s\n\n",
+                dealerHand,
+                !shoe.hasPlasticCard() ? String.format("%s#%s <- plastic card", Hand.ANSI_RED, Hand.ANSI_RESET) : "");
         for (int i = 0; i < playerHands.size(); i++) {
             System.out.printf("%s%s\n", i == selected ? "->" : "", playerHands.get(i));
         }
@@ -37,7 +39,7 @@ public class Blackjack {
         Hand playerHand = playerHands.get(selected);
         boolean satisfied = playerHand.isBlackjack() || dealerHand.isBlackjack();
         while (!satisfied) {
-            printState(playerHands, selected, dealerHand);
+            printState(playerHands, selected, dealerHand, shoe);
             String action = scanner.next("[hsDS]");
             switch (action) {
                 case "h":
@@ -99,17 +101,17 @@ public class Blackjack {
                 resolveHand(shoe, playerHands, i, dealerHand);
             }
 
-            printState(playerHands, -1, dealerHand.reveal());
+            printState(playerHands, -1, dealerHand.reveal(), shoe);
             while (dealerHand.getValue() < 17) {
                 dealerHand.add(shoe.draw(false));
-                printState(playerHands, -1, dealerHand);
+                printState(playerHands, -1, dealerHand, shoe);
             }
 
             for (Hand playerHand : playerHands) {
                 playerHand.reveal();
                 playerHand.evaluate(dealerHand);
             }
-            printState(playerHands, -1, dealerHand);
+            printState(playerHands, -1, dealerHand, shoe);
             scanner.nextLine();
         }
 

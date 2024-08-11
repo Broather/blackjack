@@ -2,9 +2,9 @@ import java.util.ArrayList;
 import java.util.Stack;
 
 public class Hand {
-    private static final String ANSI_GREEN = "\u001b[32m";
-    private static final String ANSI_RED = "\u001b[31m";
-    private static final String ANSI_RESET = "\u001b[0m";
+    public static final String ANSI_GREEN = "\u001b[32m";
+    public static final String ANSI_RED = "\u001b[31m";
+    public static final String ANSI_RESET = "\u001b[0m";
 
     private Stack<Card> cards = new Stack<>();
     private Player player;
