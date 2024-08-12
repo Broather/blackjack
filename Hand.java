@@ -2,9 +2,16 @@ import java.util.ArrayList;
 import java.util.Stack;
 
 public class Hand {
-    public static final String ANSI_GREEN = "\u001b[32m";
-    public static final String ANSI_RED = "\u001b[31m";
-    public static final String ANSI_RESET = "\u001b[0m";
+
+    public static final String ANSI_GREEN_FG = "\u001b[32m";
+    public static final String ANSI_RED_FG = "\u001b[31m";
+    public static final String ANSI_BLACK_FG = "\u001b[30m";
+    public static final String ANSI_WHITE_BG = "\u001b[47m";
+    public static final String ANSI_STRIKETHROUGH = "\u001b[9m";
+    public static final String ANSI_STRIKETHROUGH_RESET = "\u001b[29m";
+    public static final String ANSI_BOLD = "\u001b[1m";
+    public static final String ANSI_RESET_COLOR = "\u001b[39;49m";
+    public static final String ANSI_RESET_ALL = "\u001b[0m";
 
     private Stack<Card> cards = new Stack<>();
     private Player player;
@@ -41,20 +48,29 @@ public class Hand {
         // can't call it in isSoft because getValue depends on it
         int value = getValue();
 
+        // dealer
         if (baseBet == 0.0f) {
-            return String.format("%s's hand: %s (%s%d)", player.getName(), cards, isSoft() ? "*" : "", value);
+            return String.format("%s's hand: %s %s(%s%d)%s", player.getName(), cards,
+                    isBusted() ? Hand.ANSI_STRIKETHROUGH : "", isSoft() ? "*" : "", value,
+                    Hand.ANSI_STRIKETHROUGH_RESET);
         }
+        // player hand no payout
         if (payoutBet == 0.0f) {
-            return String.format("(%.2f) %s's hand: %s (%s%d)", baseBet, player.getName(), cards, isSoft() ? "*" : "",
-                    value);
+            return String.format("(%.2f) %s's hand: %s %s(%s%d)%s", baseBet, player.getName(), cards,
+                    isBusted() ? Hand.ANSI_STRIKETHROUGH : "", isSoft() ? "*" : "",
+                    value,
+                    Hand.ANSI_STRIKETHROUGH_RESET);
         }
-        return String.format("(%s%+.2f%s) %s's hand: %s (%s%d)", payoutBet > 0.0f ? ANSI_GREEN : ANSI_RED,
+        // player hand with payout
+        return String.format("(%s%+.2f%s) %s's hand: %s %s(%s%d)%s", payoutBet > 0.0f ? ANSI_GREEN_FG : ANSI_RED_FG,
                 payoutBet,
-                ANSI_RESET,
+                ANSI_RESET_COLOR,
                 player.getName(),
                 cards,
+                isBusted() ? Hand.ANSI_STRIKETHROUGH : "",
                 isSoft() ? "*" : "",
-                value);
+                value,
+                Hand.ANSI_STRIKETHROUGH_RESET);
     }
 
     private int calculateValue() {

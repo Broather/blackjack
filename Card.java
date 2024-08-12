@@ -1,10 +1,6 @@
 import java.util.Map;
 
 public class Card {
-    private static final String ANSI_BG_WHITE = "\u001b[47m";
-    private static final String ANSI_BG_RED = "\u001b[41m";
-    private static final String ANSI_RESET = "\u001b[0m";
-
     private static final Map<String, Integer> valueMap = Map.ofEntries(
             Map.entry("A", 11),
             Map.entry("2", 2),
@@ -66,8 +62,11 @@ public class Card {
         if (isFaceDown) {
             return "?? of ??";
         }
-        return String.format("%s of %s%s%s", rank, suit == "Hearts" || suit == "Diamonds" ? ANSI_BG_RED : ANSI_BG_WHITE,
-                suit, ANSI_RESET);
+        return String.format("%s of %s%s%s",
+                rank,
+                suit == "Hearts" || suit == "Diamonds" ? Hand.ANSI_RED_FG : Hand.ANSI_BLACK_FG + Hand.ANSI_WHITE_BG,
+                suit,
+                Hand.ANSI_RESET_COLOR);
     }
 
     public int getValue() {

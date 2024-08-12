@@ -27,24 +27,30 @@ public class Blackjack {
         System.out.print("\u001b[H\u001b[2J");
         System.out.flush();
 
-        System.out.printf("%s\t%s\n\n",
+        Set<Player> participatingPlayers = playerHands.stream().map(Hand::getPlayer).collect(Collectors.toSet());
+        participatingPlayers.forEach(System.out::println);
+
+        System.out.printf("\n%s\t%s%s\n\n",
                 dealerHand,
-                !shoe.hasPlasticCard() ? String.format("%s#%s <- plastic card", Hand.ANSI_RED, Hand.ANSI_RESET) : "");
+                !shoe.hasPlasticCard() ? Hand.ANSI_RED_FG + "#" + Hand.ANSI_RESET_ALL : "",
+                !shoe.hasPlasticCard() ? " <- plastic card" : "");
         for (int i = 0; i < playerHands.size(); i++) {
-            System.out.printf("%s%s\n", i == selected ? "->" : "", playerHands.get(i));
+            System.out.printf("%s%s%s\n", i == selected ? "->" + Hand.ANSI_BOLD : "", playerHands.get(i),
+                    Hand.ANSI_RESET_ALL);
         }
     }
 
     private static void resolveHand(Shoe shoe, ArrayList<Hand> playerHands, int selected, Hand dealerHand) {
         Hand playerHand = playerHands.get(selected);
         boolean satisfied = playerHand.isBlackjack() || dealerHand.isBlackjack();
+        printState(playerHands, selected, dealerHand, shoe);
         while (!satisfied) {
-            printState(playerHands, selected, dealerHand, shoe);
-            String action = scanner.next("[hsDS]");
+            String action = scanner.nextLine();
             switch (action) {
                 case "h":
                     // hit
                     playerHand.add(shoe.draw(false));
+                    printState(playerHands, selected, dealerHand, shoe);
                     satisfied = playerHand.getValue() >= 21;
                     break;
                 case "s":
@@ -55,6 +61,7 @@ public class Blackjack {
                     // double
                     playerHand.doubleBet();
                     playerHand.add(shoe.draw(true));
+                    printState(playerHands, selected, dealerHand, shoe);
                     satisfied = true;
                     break;
                 case "S":
@@ -68,12 +75,13 @@ public class Blackjack {
 
                         playerHands.add(selected + 1, splitHand);
 
+                        printState(playerHands, selected, dealerHand, shoe);
                         satisfied = playerHand.isForcedSatisfied() || playerHand.getValue() >= 21;
                     }
                     break;
 
                 default:
-                    System.out.println("unhandled action: " + action);
+                    System.out.println("unrecognised action: " + action);
                     break;
             }
         }
@@ -114,9 +122,6 @@ public class Blackjack {
             printState(playerHands, -1, dealerHand, shoe);
             scanner.nextLine();
         }
-
-        Set<Player> participatedPlayers = initialHands.stream().map(Hand::getPlayer).collect(Collectors.toSet());
-        participatedPlayers.forEach(System.out::println);
 
         scanner.close();
     }
