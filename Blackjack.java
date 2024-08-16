@@ -9,7 +9,7 @@ import java.util.stream.Collectors;
  */
 public class Blackjack {
     private static final Scanner scanner = new Scanner(System.in);
-    private static final int DECKS_IN_SHOE = 1;
+    private static final int DECKS_IN_SHOE = 4;
 
     private static void firstDraw(Shoe shoe, ArrayList<Hand> playerHands, Hand dealerHand) {
         for (Hand player : playerHands) {

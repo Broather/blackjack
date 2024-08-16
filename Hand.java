@@ -15,11 +15,11 @@ public class Hand {
 
     private Stack<Card> cards = new Stack<>();
     private Player player;
-    private float baseBet = 0.0f;
+    private int baseBet = 0;
     private float payoutBet = 0.0f;
     private boolean forcedSatisfaction = false;
 
-    public static ArrayList<Hand> of(Player player, float... bets) {
+    public static ArrayList<Hand> of(Player player, int... bets) {
         ArrayList<Hand> hands = new ArrayList<>(bets.length);
         for (int i = 0; i < bets.length; i++) {
             hands.add(i, new Hand(player, bets[i]));
@@ -31,7 +31,7 @@ public class Hand {
         this.player = new Player("dealer");
     }
 
-    public Hand(Player player, float bet) {
+    public Hand(Player player, int bet) {
         this.player = player;
         this.baseBet = bet;
     }
