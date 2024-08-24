@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.Scanner;
 import java.util.Stack;
 
 public class Hand {
@@ -14,7 +15,7 @@ public class Hand {
     public static final String ANSI_RESET_ALL = "\u001b[0m";
 
     private Stack<Card> cards = new Stack<>();
-    private Player player;
+    private Owner owner;
     private int baseBet = 0;
     private float payoutBet = 0.0f;
     private boolean forcedSatisfaction = false;
@@ -28,16 +29,16 @@ public class Hand {
     }
 
     public Hand() {
-        this.player = new Player("dealer");
+        this.owner = new Player("dealer");
     }
 
-    public Hand(Player player, int bet) {
-        this.player = player;
+    public Hand(Owner owner, int bet) {
+        this.owner = owner;
         this.baseBet = bet;
     }
 
     public Hand(Hand hand) {
-        this.player = hand.player;
+        this.owner = hand.owner;
         this.baseBet = hand.baseBet;
     }
 
@@ -50,13 +51,13 @@ public class Hand {
 
         // dealer
         if (baseBet == 0.0f) {
-            return String.format("%s's hand: %s %s(%s%d)%s", player.getName(), cards,
+            return String.format("%s's hand: %s %s(%s%d)%s", owner.getName(), cards,
                     isBusted() ? Hand.ANSI_STRIKETHROUGH : "", isSoft() ? "*" : "", value,
                     Hand.ANSI_STRIKETHROUGH_RESET);
         }
         // player hand no payout
         if (payoutBet == 0.0f) {
-            return String.format("(%.2f) %s's hand: %s %s(%s%d)%s", baseBet, player.getName(), cards,
+            return String.format("(%d) %s's hand: %s %s(%s%d)%s", baseBet, owner.getName(), cards,
                     isBusted() ? Hand.ANSI_STRIKETHROUGH : "", isSoft() ? "*" : "",
                     value,
                     Hand.ANSI_STRIKETHROUGH_RESET);
@@ -65,7 +66,7 @@ public class Hand {
         return String.format("(%s%+.2f%s) %s's hand: %s %s(%s%d)%s", payoutBet > 0.0f ? ANSI_GREEN_FG : ANSI_RED_FG,
                 payoutBet,
                 ANSI_RESET_COLOR,
-                player.getName(),
+                owner.getName(),
                 cards,
                 isBusted() ? Hand.ANSI_STRIKETHROUGH : "",
                 isSoft() ? "*" : "",
@@ -98,8 +99,8 @@ public class Hand {
         }
     }
 
-    public Player getPlayer() {
-        return player;
+    public Owner getOwner() {
+        return owner;
     }
 
     public void doubleBet() {
@@ -151,7 +152,7 @@ public class Hand {
             payoutBet = 0.0f;
         }
 
-        player.addToTotal(payoutBet);
+        owner.addToTotal(payoutBet);
     }
 
     public Hand reveal() {
@@ -164,7 +165,7 @@ public class Hand {
     public Hand split() {
         assert this.isSplittable() : "attempted to split unsplittable hand";
 
-        Hand splitHand = new Hand(player, baseBet);
+        Hand splitHand = new Hand(owner, baseBet);
         if (cards.stream().allMatch(Card::isAce)) {
             forcedSatisfaction = true;
             splitHand.forcedSatisfaction = true;
@@ -177,5 +178,19 @@ public class Hand {
 
     public void add(Card c) {
         cards.push(c);
+    }
+
+    /*
+     * bot needs dealer's hand (and it's own hand)
+     * human player needs scanner to type letters into
+     */
+    public MoveType resolve(Hand dealerHand, Scanner scanner) {
+        if (owner instanceof Bot) {
+            Bot b = (Bot) owner;
+            return b.resolve.apply(dealerHand.getValue(), this.getValue());
+        } else {
+            Player p = (Player) owner;
+            return p.parseInput(scanner);
+        }
     }
 }

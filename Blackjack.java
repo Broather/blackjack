@@ -8,7 +8,6 @@ import java.util.stream.Collectors;
  * Blackjack
  */
 public class Blackjack {
-    private static final Scanner scanner = new Scanner(System.in);
     private static final int DECKS_IN_SHOE = 4;
 
     private static void firstDraw(Shoe shoe, ArrayList<Hand> playerHands, Hand dealerHand) {
@@ -27,7 +26,7 @@ public class Blackjack {
         System.out.print("\u001b[H\u001b[2J");
         System.out.flush();
 
-        Set<Player> participatingPlayers = playerHands.stream().map(Hand::getPlayer).collect(Collectors.toSet());
+        Set<Owner> participatingPlayers = playerHands.stream().map(Hand::getOwner).collect(Collectors.toSet());
         participatingPlayers.forEach(System.out::println);
 
         System.out.printf("\n%s\t%s%s\n\n",
@@ -40,43 +39,44 @@ public class Blackjack {
         }
     }
 
-    private static void resolveHand(Shoe shoe, ArrayList<Hand> playerHands, int selected, Hand dealerHand) {
-        Hand playerHand = playerHands.get(selected);
-        boolean satisfied = playerHand.isBlackjack() || dealerHand.isBlackjack();
+    private static void resolveHand(Shoe shoe, ArrayList<Hand> playerHands, int selected, Hand dealerHand,
+            Scanner scanner) {
+        Hand selectedHand = playerHands.get(selected);
+        boolean satisfied = selectedHand.isBlackjack() || dealerHand.isBlackjack();
         printState(playerHands, selected, dealerHand, shoe);
         while (!satisfied) {
-            String action = scanner.nextLine();
+            MoveType action = selectedHand.resolve(dealerHand, scanner);
             switch (action) {
-                case "h":
+                case Hit:
                     // hit
-                    playerHand.add(shoe.draw(false));
+                    selectedHand.add(shoe.draw(false));
                     printState(playerHands, selected, dealerHand, shoe);
-                    satisfied = playerHand.getValue() >= 21;
+                    satisfied = selectedHand.getValue() >= 21;
                     break;
-                case "s":
+                case Stand:
                     // stand
                     satisfied = true;
                     break;
-                case "D":
+                case Double:
                     // double
-                    playerHand.doubleBet();
-                    playerHand.add(shoe.draw(true));
+                    selectedHand.doubleBet();
+                    selectedHand.add(shoe.draw(true));
                     printState(playerHands, selected, dealerHand, shoe);
                     satisfied = true;
                     break;
-                case "S":
+                case Split:
                     // split
-                    if (!playerHand.isSplittable()) {
+                    if (!selectedHand.isSplittable()) {
                         System.out.println("can't split that");
                     } else {
-                        Hand splitHand = playerHand.split();
+                        Hand splitHand = selectedHand.split();
                         splitHand.add(shoe.draw(false));
-                        playerHand.add(shoe.draw(false));
+                        selectedHand.add(shoe.draw(false));
 
                         playerHands.add(selected + 1, splitHand);
 
                         printState(playerHands, selected, dealerHand, shoe);
-                        satisfied = playerHand.isForcedSatisfied() || playerHand.getValue() >= 21;
+                        satisfied = selectedHand.isForcedSatisfied() || selectedHand.getValue() >= 21;
                     }
                     break;
 
@@ -88,12 +88,17 @@ public class Blackjack {
     }
 
     public static void main(String[] args) {
-        Scanner scanner = new Scanner(System.in);
-        Random rand = new Random();
-        Shoe shoe = new Shoe(DECKS_IN_SHOE, rand);
+        final Scanner scanner = new Scanner(System.in);
+        final Random rand = new Random();
+        final Shoe shoe = new Shoe(DECKS_IN_SHOE, rand);
 
         Player jack = new Player("Jack");
-        ArrayList<Hand> initialHands = Hand.of(jack, 20, 15);
+        Bot bot = new Bot(BotType.PerfectStrategy);
+
+        ArrayList<Hand> initialHands = new ArrayList<>();
+        initialHands.add(new Hand(jack, 10));
+        initialHands.add(new Hand(bot, 10));
+
         while (shoe.hasPlasticCard()) {
             Hand dealerHand = new Hand();
             // deep copy of initialHands
@@ -106,7 +111,7 @@ public class Blackjack {
             // TODO: offer insurance if dealer has Ace
 
             for (int i = 0; i < playerHands.size(); i++) {
-                resolveHand(shoe, playerHands, i, dealerHand);
+                resolveHand(shoe, playerHands, i, dealerHand, scanner);
             }
 
             printState(playerHands, -1, dealerHand.reveal(), shoe);

@@ -1,29 +1,28 @@
+import java.util.Map;
+import java.util.Scanner;
+
 /**
  * Player
  */
-public class Player {
-    private static final String ANSI_GREEN = "\u001b[32m";
-    private static final String ANSI_RED = "\u001b[31m";
-    private static final String ANSI_RESET = "\u001b[0m";
-
-    private String name;
-    private float runningTotal = 0.0f;
-
+public class Player extends Owner {
     public Player(String name) {
-        this.name = name;
+        super.name = name;
     }
 
-    @Override
-    public String toString() {
-        return String.format("%s's total: (%s%+.2f%s)", name, runningTotal > 0 ? ANSI_GREEN : ANSI_RED, runningTotal,
-                ANSI_RESET);
-    }
+    public MoveType parseInput(Scanner scanner) {
+        Map<String, MoveType> moveMap = Map.of(
+                "h", MoveType.Hit,
+                "s", MoveType.Stand,
+                "D", MoveType.Double);
 
-    public String getName() {
-        return name;
-    }
-
-    public void addToTotal(float a) {
-        runningTotal += a;
+        String input = scanner.nextLine();
+        while (true) {
+            if (moveMap.containsKey(input)) {
+                return moveMap.get(input);
+            } else {
+                System.out.printf("unrecognised input: %s\n", input);
+                input = scanner.nextLine();
+            }
+        }
     }
 }
