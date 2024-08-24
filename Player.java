@@ -1,5 +1,4 @@
 import java.util.Map;
-import java.util.Scanner;
 
 /**
  * Player
@@ -9,20 +8,13 @@ public class Player extends Owner {
         super.name = name;
     }
 
-    public MoveType parseInput(Scanner scanner) {
+    public MoveType parseInput(String input) {
         Map<String, MoveType> moveMap = Map.of(
                 "h", MoveType.Hit,
                 "s", MoveType.Stand,
-                "D", MoveType.Double);
+                "D", MoveType.Double,
+                "S", MoveType.Split);
 
-        String input = scanner.nextLine();
-        while (true) {
-            if (moveMap.containsKey(input)) {
-                return moveMap.get(input);
-            } else {
-                System.out.printf("unrecognised input: %s\n", input);
-                input = scanner.nextLine();
-            }
-        }
+        return moveMap.getOrDefault(input, MoveType.Unrecognised);
     }
 }

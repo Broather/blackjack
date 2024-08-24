@@ -187,10 +187,10 @@ public class Hand {
     public MoveType resolve(Hand dealerHand, Scanner scanner) {
         if (owner instanceof Bot) {
             Bot b = (Bot) owner;
-            return b.resolve.apply(dealerHand.getValue(), this.getValue());
+            return b.resolve.apply(dealerHand, this);
         } else {
             Player p = (Player) owner;
-            return p.parseInput(scanner);
+            return p.parseInput(scanner.nextLine());
         }
     }
 }
