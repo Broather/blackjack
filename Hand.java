@@ -132,6 +132,10 @@ public class Hand {
         return forcedSatisfaction;
     }
 
+    public boolean isDoubleable() {
+        return cards.size() == 2;
+    }
+
     public void evaluate(Hand dealerHand) {
         payoutBet = baseBet;
         if (this.isBusted()) {
