@@ -191,7 +191,7 @@ public class Hand {
     public MoveType resolve(Hand dealerHand, Scanner scanner) {
         if (owner instanceof Bot) {
             Bot b = (Bot) owner;
-            return b.resolve.apply(dealerHand, this);
+            return b.resolve.apply(this, dealerHand);
         } else {
             Player p = (Player) owner;
             return p.parseInput(scanner.nextLine());

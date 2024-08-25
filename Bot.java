@@ -5,6 +5,9 @@ import java.util.function.BiFunction;
  * Bot
  */
 public class Bot extends Owner {
+    /*
+     * resolve my hand given dealer hand
+     */
     public BiFunction<Hand, Hand, MoveType> resolve;
 
     public Bot(BotType type) {
@@ -15,8 +18,7 @@ public class Bot extends Owner {
 
         super.name = "Bot";
         if (type == BotType.PerfectStrategy) {
-
-            resolve = (Hand dealer, Hand me) -> {
+            resolve = (Hand me, Hand dealer) -> {
                 final int myValue = me.getValue();
                 final int dealerValue = dealer.getValue();
                 if (me.isSplittable()) {
@@ -106,4 +108,5 @@ public class Bot extends Owner {
             };
         }
     }
+
 }
