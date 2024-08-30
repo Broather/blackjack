@@ -11,12 +11,13 @@ public class Bot extends Owner {
     public BiFunction<Hand, Hand, MoveType> resolve;
 
     public Bot(BotType type) {
+        super.name = "Bot";
+
         final MoveType hit = MoveType.Hit;
         final MoveType stand = MoveType.Stand;
         final MoveType doubleDown = MoveType.Double;
         final MoveType split = MoveType.Split;
 
-        super.name = "Bot";
         if (type == BotType.PerfectStrategy) {
             resolve = (Hand me, Hand dealer) -> {
                 final int myValue = me.getValue();

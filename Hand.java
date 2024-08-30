@@ -20,12 +20,13 @@ public class Hand {
     private float payoutBet = 0.0f;
     private boolean forcedSatisfaction = false;
 
-    public static ArrayList<Hand> of(Player player, int... bets) {
-        ArrayList<Hand> hands = new ArrayList<>(bets.length);
-        for (int i = 0; i < bets.length; i++) {
-            hands.add(i, new Hand(player, bets[i]));
+    public static Hand of(Card... cards) {
+        Player p = new Player("anon");
+        Hand hand = new Hand(p, 0);
+        for (Card card : cards) {
+            hand.add(card);
         }
-        return hands;
+        return hand;
     }
 
     public Hand() {
@@ -83,9 +84,7 @@ public class Hand {
 
     public int getValue() {
         int value = calculateValue();
-        if (value <= 21) {
-            return value;
-        } else if (!isSoft()) {
+        if (value <= 21 && !isSoft()) {
             return value;
         } else {
             for (Card c : cards) {

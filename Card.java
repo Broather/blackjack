@@ -1,4 +1,6 @@
+import java.util.ArrayList;
 import java.util.Map;
+import java.util.Set;
 
 public class Card {
     private static final Map<String, Integer> valueMap = Map.ofEntries(
@@ -15,6 +17,16 @@ public class Card {
             Map.entry("J", 10),
             Map.entry("Q", 10),
             Map.entry("K", 10));
+
+    public static ArrayList<Card> allRanks(String suit, boolean isFaceDown) {
+        ArrayList<Card> cards = new ArrayList<>();
+        Set<String> ranks = valueMap.keySet();
+        for (String rank : ranks) {
+            cards.add(new Card(rank, suit, isFaceDown));
+        }
+
+        return cards;
+    }
 
     private String rank;
     public int value;
@@ -34,7 +46,7 @@ public class Card {
     }
 
     public boolean equals(Card that) {
-        return this.value == that.getValue();
+        return this.rank.equals(that.getRank());
     }
 
     public String getRank() {
